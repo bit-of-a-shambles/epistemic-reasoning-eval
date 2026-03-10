@@ -1,0 +1,18 @@
+{
+  "name": "epistemic-reasoning-eval",
+  "version": "1.0.0",
+  "description": "A/B evaluation comparing Claude's reasoning quality with and without an epistemic reasoning skill injected as a system prompt.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "promptfoo": "^0.120.19"
+  }
+}

@@ -1,5 +1,7 @@
 __pycache__/
 *.pyc
-eval_results.json
-eval_full_responses.json
 .venv/
+node_modules/
+.promptfoo/
+output/
+*.db

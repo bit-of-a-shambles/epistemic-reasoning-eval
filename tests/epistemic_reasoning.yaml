@@ -1,0 +1,168 @@
+# ============================================================================
+# CUSTOM EPISTEMIC REASONING TESTS
+# Tests for specific epistemic behaviors: falsification, Bayesian updating,
+# considering alternatives, calibration, etc.
+# ============================================================================
+
+# --- Base Rate Neglect ---
+- vars:
+    prompt: >
+      A test for a rare disease (1 in 10,000 people) has a 99% sensitivity
+      and 95% specificity. A patient tests positive. What is the probability
+      they actually have the disease? Explain your reasoning.
+  assert:
+    - type: llm-rubric
+      value: >
+        The response must: (1) reference the base rate / prior probability of 1 in 10,000,
+        (2) use Bayesian reasoning or equivalent calculation,
+        (3) arrive at approximately 0.2% (NOT 99% or 95%),
+        (4) discuss false positives,
+        (5) state confidence in the answer.
+        Grade strictly: all 5 elements must be present for a passing score.
+      threshold: 0.7
+
+# --- Correlation vs Causation ---
+- vars:
+    prompt: >
+      Countries that consume more chocolate per capita win more Nobel Prizes.
+      A researcher concludes that chocolate consumption improves cognitive
+      function at a national level. Evaluate this claim.
+  assert:
+    - type: llm-rubric
+      value: >
+        The response must: (1) identify that correlation does not imply causation,
+        (2) propose specific confounders (e.g., wealth, education spending, research funding),
+        (3) question the causal mechanism,
+        (4) consider alternative explanations,
+        (5) avoid simply dismissing the claim without nuance.
+        Grade strictly on all 5 elements.
+      threshold: 0.7
+
+# --- Anchoring Bias ---
+- vars:
+    prompt: >
+      A startup founder tells you their company is worth $50M based on a
+      comparable company that just raised at that valuation. The comparable
+      company has 10x the revenue and is in a different market segment.
+      How would you evaluate the startup's valuation claim?
+  assert:
+    - type: llm-rubric
+      value: >
+        The response must: (1) identify the $50M figure as an anchor,
+        (2) challenge the comparability of the companies,
+        (3) propose alternative valuation methods,
+        (4) reference typical startup valuation base rates or ranges,
+        (5) acknowledge uncertainty in any valuation estimate.
+      threshold: 0.7
+
+# --- Absence of Evidence ---
+- vars:
+    prompt: >
+      A pharmaceutical company says their new drug has 'no known side effects'
+      based on a 12-week trial with 200 participants. Should a doctor feel
+      confident prescribing this drug for long-term use? Why or why not?
+  assert:
+    - type: llm-rubric
+      value: >
+        The response must: (1) distinguish absence of evidence from evidence of absence,
+        (2) note that 200 participants is too small to detect rare side effects,
+        (3) note that 12 weeks is too short for long-term safety conclusions,
+        (4) consider publication bias or reporting incentives,
+        (5) recommend appropriate caution.
+      threshold: 0.7
+
+# --- Monocausal Explanation ---
+- vars:
+    prompt: >
+      After a company switches to an open office plan, employee satisfaction
+      drops by 20%. The CEO blames the office redesign. Is this conclusion
+      justified? What else could explain the data?
+  assert:
+    - type: llm-rubric
+      value: >
+        The response must: (1) challenge single-cause attribution,
+        (2) list multiple alternative possible causes,
+        (3) flag the post hoc ergo propter hoc fallacy or temporal coincidence,
+        (4) suggest gathering more data to distinguish causes,
+        (5) allow that the redesign may be a contributing factor (not dismiss entirely).
+      threshold: 0.7
+
+# --- Unfalsifiable Claims ---
+- vars:
+    prompt: >
+      A management consultant claims their leadership framework 'always works'
+      because when companies succeed it validates the framework, and when they
+      fail it means they didn't implement it properly. Evaluate this claim.
+  assert:
+    - type: llm-rubric
+      value: >
+        The response must: (1) identify the claim as unfalsifiable,
+        (2) explain why unfalsifiable claims are epistemically problematic,
+        (3) reference falsification as a criterion (explicitly or implicitly),
+        (4) identify the 'didn't implement properly' as an ad hoc rescue,
+        (5) suggest how to make the claim testable.
+      threshold: 0.7
+
+# --- Overconfidence / Calibration ---
+- vars:
+    prompt: >
+      Predict whether the global average temperature in 2030 will be higher
+      or lower than 2025, and by how much. Explain your reasoning.
+  assert:
+    - type: llm-rubric
+      value: >
+        The response must: (1) give a range rather than a single point estimate,
+        (2) explicitly acknowledge uncertainty and what could go wrong,
+        (3) cite evidence or data trends as basis for the prediction,
+        (4) avoid false precision (unreasonably specific numbers),
+        (5) consider scenarios where the prediction could fail.
+      threshold: 0.7
+
+# --- Competing Explanations ---
+- vars:
+    prompt: >
+      A website's conversion rate dropped 15% last week. The marketing team
+      says it's because a competitor launched a similar product. The engineering
+      team says it's because of a recent UI change. The analytics team notes
+      it's also holiday season. Which explanation is most likely correct?
+  assert:
+    - type: llm-rubric
+      value: >
+        The response must: (1) evaluate all three explanations seriously,
+        (2) rank or weigh them based on available evidence,
+        (3) avoid picking one prematurely without caveats,
+        (4) propose ways to distinguish between the explanations,
+        (5) consider that multiple causes may interact.
+      threshold: 0.7
+
+# --- Survivorship Bias ---
+- vars:
+    prompt: >
+      A business book studies 50 highly successful companies and finds they
+      all have strong corporate cultures. The author concludes that strong
+      corporate culture is the key to business success. Is this reasoning valid?
+  assert:
+    - type: llm-rubric
+      value: >
+        The response must: (1) identify survivorship bias,
+        (2) note that failed companies with strong culture aren't studied,
+        (3) question the direction of causation (culture causes success vs success enables culture),
+        (4) suggest studying failed companies too for a valid comparison,
+        (5) provide a nuanced conclusion rather than total dismissal.
+      threshold: 0.7
+
+# --- Theory-Ladenness ---
+- vars:
+    prompt: >
+      Two economists look at the same jobs report showing 150,000 new jobs
+      created. One says the economy is strong; the other says it's weakening.
+      How can they reach opposite conclusions from identical data?
+  assert:
+    - type: llm-rubric
+      value: >
+        The response must: (1) explain that observations are shaped by theoretical frameworks,
+        (2) identify that the economists have different baseline expectations or priors,
+        (3) name specific frameworks (e.g., one expects 200K as healthy, other expects 100K),
+        (4) avoid false equivalence (not just 'both are right'),
+        (5) discuss how to adjudicate between the interpretations.
+      threshold: 0.7

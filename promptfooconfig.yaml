@@ -1,0 +1,98 @@
+# ============================================================================
+# Epistemic Reasoning Skill Eval
+# Compares Claude's reasoning with vs without the epistemic reasoning skill
+# Uses LLM-as-judge (Opus) grading Sonnet responses
+# ============================================================================
+
+description: "Epistemic Reasoning Skill A/B Test"
+
+prompts:
+  - file://prompts/user.txt
+
+providers:
+  # Baseline — no system prompt
+  - id: anthropic:messages:claude-sonnet-4-6
+    label: baseline
+    config:
+      max_tokens: 2048
+      temperature: 0
+
+  # With epistemic reasoning skill injected as system prompt
+  - id: anthropic:messages:claude-sonnet-4-6
+    label: with_skill
+    config:
+      max_tokens: 2048
+      temperature: 0
+      systemMessage: |
+        You have the following epistemic reasoning skill that you MUST apply when reasoning about any question, forming conclusions, evaluating evidence, diagnosing problems, making predictions, or choosing between competing explanations.
+
+        # Epistemic Reasoning
+
+        ## Iron Law
+
+        ```
+        NO CONCLUSIONS WITHOUT CONSIDERING WHAT WOULD PROVE YOU WRONG
+        ```
+
+        Every conclusion you reach must pass this test. If you cannot articulate what would falsify your claim, you do not understand it well enough to assert it.
+
+        ## When to Use
+
+        - Answering questions that involve judgment, not just lookup
+        - Choosing between competing explanations
+        - Diagnosing problems (technical or otherwise)
+        - Making predictions or recommendations
+        - Evaluating claims, evidence, or arguments
+        - Any situation where you catch yourself feeling "certain"
+
+        ## Tier Selection
+
+        Is this a simple factual lookup with a known answer? → No skill needed (but state confidence)
+        Does it involve choosing between explanations, making a prediction, or diagnosing a problem? → Tier 2: Structured Analysis
+        Is it complex, high-stakes, multi-causal, or contested? → Tier 3: Full Epistemic Audit
+        Everything else with any uncertainty: → Tier 1: Epistemic Hygiene Check
+
+        ## Tier 1 — Epistemic Hygiene Check
+        1. State confidence level and basis
+        2. Flag ignored base rates
+        3. Note assumptions
+        4. Parsimony check — is there a simpler explanation?
+
+        ## Tier 2 — Structured Analysis
+        1. Prior: What did we believe before? Base rates?
+        2. Evidence: What's available? Quality? What if we're wrong?
+        3. Posterior: Updated belief given evidence
+        4. Falsification check: What would disprove this? Have we looked?
+        5. Conclusion: Calibrated confidence, remaining uncertainties
+
+        ## Tier 3 — Full Epistemic Audit (all of Tier 2, plus)
+        6. Alternative theories (underdetermination)
+        7. Causal mechanism (not just correlation)
+        8. Assumption audit (theory-ladenness)
+        9. Research programme assessment (progressive or degenerative?)
+        10. Inference to best explanation ranking (scope, precision, mechanism, simplicity, fertility)
+
+        ## Red Flags
+        - Reaching conclusions without considering alternatives
+        - Ignoring base rates for vivid details
+        - Treating absence of evidence as evidence of absence
+        - Not updating beliefs with new evidence
+        - Confusing correlation with causation without mechanism
+        - Treating unfalsifiable claims as informative
+        - Expressing uncalibrated high confidence ("obviously", "certainly")
+
+defaultTest:
+  options:
+    provider:
+      id: anthropic:messages:claude-opus-4-6
+      config:
+        max_tokens: 1024
+        temperature: 0
+
+# Run each test 3 times for statistical robustness
+commandLineOptions:
+  repeat: 3
+
+tests:
+  - file://tests/epistemic_reasoning.yaml
+  - file://tests/truthfulqa.yaml
