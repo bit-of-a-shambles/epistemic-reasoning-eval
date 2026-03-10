@@ -1,10 +1,10 @@
 # Epistemic Reasoning Skill Eval
 
-A/B evaluation comparing Claude's reasoning quality with and without an [epistemic reasoning skill](SKILL.md) injected as a system prompt.
+A/B evaluation comparing Claude's reasoning quality with and without an [epistemic reasoning skill](https://github.com/duartemartins/.claude/skills/epistemic-reasoning/SKILL.md) injected as a system prompt.
 
-Uses [promptfoo](https://promptfoo.dev) with LLM-as-judge grading (Opus grading Sonnet) across 20 reasoning scenarios.
+Uses [promptfoo](https://promptfoo.dev) with both LLM-as-judge (Opus grading Sonnet) and programmatic JavaScript assertions.
 
-## Results (2026-03-10, v2 — fixed rubrics)
+## Results (2026-03-10, v2 — original 20 tests)
 
 **Overall: baseline 0.939 vs skill 0.936 (delta: -0.003, within noise)**
 
@@ -33,72 +33,68 @@ Uses [promptfoo](https://promptfoo.dev) with LLM-as-judge grading (Opus grading 
 | Nixon "I am not a crook" | TruthfulQA | 0.95 | 0.92 | -0.03 |
 | "Insanity is doing the same thing..." | TruthfulQA | 0.90 | 0.93 | +0.03 |
 
-**By category:**
-- Epistemic Reasoning (custom): baseline 0.928 → skill 0.926 (-0.002)
-- TruthfulQA (misconceptions): baseline 0.949 → skill 0.946 (-0.003)
+### Interpretation (v2)
 
-### Rubric fixes (v1 → v2)
+The skill produces **no measurable aggregate effect** on Sonnet 4.6 (delta -0.003, well within noise for N=3). The original 20 tests are too easy — Sonnet 4.6 scores 94%+ on both conditions.
 
-Two rubrics were overly strict in v1, penalizing correct reasoning for missing specific terminology:
+## Hard Tests (v3 — pending results)
 
-- **Anchoring (0.50/0.42 → 0.84/0.90):** The v1 rubric required citing "typical startup valuation base rates or ranges" as specific statistics — an unreasonable expectation without data access. The model correctly identified the flawed reasoning and proposed alternatives but was marked down for not quoting industry benchmarks. Fixed to accept qualitative reasoning about realistic valuation ranges.
-- **Nixon (0.92/0.83 → 0.95/0.92):** The v1 rubric penalized responses that correctly identified the financial context but didn't explicitly label the Watergate association as a "common misconception." Fixed to prioritize getting the core fact right over meta-commentary about misconceptions.
+10 harder questions designed to achieve a **60-70% baseline pass rate**, giving room for the skill to show improvement. Key design principles:
 
-### Interpretation
+1. **Trap answers** — questions where the epistemically sophisticated-sounding answer is wrong
+2. **Counterintuitive correct answers** — e.g., base rate neglect is sometimes the RIGHT approach (asymmetric costs)
+3. **Multiple interacting biases** — not just "name the fallacy"
+4. **Computation required** — not just pattern recognition
+5. **Nuanced conclusions** — "both sides are partially right" cases that resist binary thinking
 
-The skill produces **no measurable aggregate effect** on Sonnet 4.6 (delta -0.003, well within noise for N=3). Wins and losses cancel out:
+### Test Cases
 
-- **Wins:** Anchoring +0.06, competing explanations +0.05, MSG +0.04, insanity quote +0.03, theory-ladenness +0.02
-- **Losses:** Survivorship bias -0.10, swimming -0.06, drug trial -0.05, Nixon -0.03, matadors -0.01
-- **Equal:** 10 tests at or near 1.00
+| # | Test | What Makes It Hard |
+|---|------|--------------------|
+| 1 | Base rate + asymmetric costs | Trap: "base rate neglect is bad" → but treating is still correct due to lethality |
+| 2 | Simpson's paradox (reversed) | Trap: "use disaggregated data" → here the subgroup data IS correct, drug is worse |
+| 3 | Conjunction fallacy (complex) | Must resist narrative pull of detailed description |
+| 4 | Prosecutor's fallacy (compute) | Must actually calculate, not just name the fallacy |
+| 5 | Survivorship bias (nuanced) | Trap: just dismiss as "survivorship bias" → must note necessary-vs-sufficient |
+| 6 | Publication bias (wrong fix) | Trap: "do another study" → must demand unpublished data first |
+| 7 | Goodhart's law (both right) | Trap: dismiss all improvement as gaming → genuine improvement coexists with gaming |
+| 8 | Stat sig vs practical sig | Must take a clear position against the policy, not just explain the distinction |
+| 9 | Regression to mean + confounds | Trap: dismiss everything as RTM → must also address the confounds |
+| 10 | Epistemic nihilism | Trap: "everything is uncertain" → must still make actionable claims from evidence |
 
-The skill helps on some reasoning tasks (anchoring, competing explanations) but slightly hurts on others (survivorship bias, drug trial). The -0.10 on survivorship bias is the largest single swing — worth investigating whether the skill's structured output consumed tokens that would have gone to the specific analysis the grader wanted.
+### Grading
 
-**Bottom line:** Sonnet 4.6 is already strong at epistemic reasoning. The skill doesn't reliably improve it at this model capability level.
+All 10 tests use **programmatic JavaScript assertions** (no LLM-as-judge). Each test has 4 assertions checking for specific reasoning elements. A test passes only if all 4 assertions pass.
 
-### Limitations
+### Running
 
-- N=3 per condition — low statistical power
-- LLM-as-judge may still favor structured/verbose responses
-- Temperature 0 reduces variance but may hide effects visible at higher temperatures
-- The skill's benefit likely depends on question difficulty — these tests may be too easy for Sonnet 4.6
-- Rubric quality matters enormously — v1 results were misleading due to two overly strict rubrics
+```bash
+# Hard tests only (10 repeats, ~$1.50)
+npx promptfoo eval -c promptfooconfig.hard.yaml --no-cache
+
+# Original tests (3 repeats, ~$2.50)
+npx promptfoo eval
+
+# View results
+npx promptfoo view
+```
 
 ## Setup
 
 ```bash
-npm install promptfoo
+npm install
 export ANTHROPIC_API_KEY=your-key
 ```
-
-## Run
-
-```bash
-# Full eval (3 runs x 20 cases x 2 conditions = 120 API calls + grading)
-npx promptfoo eval
-
-# View results in browser
-npx promptfoo view
-
-# Export results
-npx promptfoo eval --output results.json
-```
-
-## What it tests
-
-**Custom epistemic reasoning cases (10):** Base rate neglect, correlation/causation, anchoring bias, absence of evidence, monocausal explanation, unfalsifiable claims, overconfidence, competing explanations, survivorship bias, theory-ladenness.
-
-**TruthfulQA subset (10):** Common misconceptions where models tend to reproduce popular falsehoods (watermelon seeds, 10% brain myth, MSG safety, etc.).
 
 ## Design
 
 - **Test model:** Claude Sonnet 4.6 (temperature 0)
-- **Grader model:** Claude Opus 4.6 (stronger model grading weaker model to reduce bias)
-- **Runs per case:** 3 (for variance estimation)
-- **Conditions:** baseline (no system prompt) vs with_skill (epistemic reasoning skill as system prompt)
-- **Framework:** promptfoo with `llm-rubric` assertions
-- **Scoring:** Continuous 0–1 scores, with 0.7 pass threshold
+- **Grader (original tests):** Claude Opus 4.6 via `llm-rubric`
+- **Grader (hard tests):** Programmatic JavaScript assertions (free, deterministic)
+- **Conditions:** baseline (no system prompt) vs with_skill (full epistemic reasoning skill)
+- **Framework:** promptfoo
 
 ## Cost
 
-~240 API calls per run. Actual cost: ~$2.50 per run (142K total tokens across Sonnet generation + Opus grading).
+- Original 20 tests (3 runs): ~$2.50 (Sonnet generation + Opus grading)
+- Hard 10 tests (10 runs): ~$1.50 (Sonnet generation only, no grading cost)

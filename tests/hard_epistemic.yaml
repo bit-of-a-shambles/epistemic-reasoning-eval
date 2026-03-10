@@ -1,0 +1,312 @@
+# ============================================================================
+# HARD EPISTEMIC REASONING TESTS
+# Target: 60-70% baseline pass rate at temperature 0
+#
+# Design principles for genuine difficulty:
+# 1. Counterintuitive correct answers requiring actual computation
+# 2. Trap answers that sound epistemically sophisticated but are wrong
+# 3. Questions where naming the fallacy is easy but applying it correctly is hard
+# 4. Scenarios requiring the model to resist compelling narratives
+# 5. Cases where multiple biases interact and simple labels don't suffice
+# ============================================================================
+
+# --- 1. Base rate + asymmetric costs (trap: "just apply Bayes") ---
+# The trap: saying the ER doctor is wrong because base rates favor tension headache.
+# The correct answer: treating is still right because of asymmetric lethality.
+# Models that learn "base rate neglect = bad" will over-correct here.
+- vars:
+    prompt: >
+      A woman in her 30s presents to the ER with sudden severe headache,
+      neck stiffness, and photophobia — the classic triad of bacterial
+      meningitis. Bacterial meningitis affects about 1 in 100,000 adults
+      per year. Tension headaches with muscle stiffness affect about 1 in
+      10 adults per year and can mimic these symptoms. The ER doctor
+      immediately starts IV antibiotics for presumed meningitis. A hospital
+      administrator reviewing costs says: "Statistically, this is almost
+      certainly just a tension headache. We're wasting $3,000 on unnecessary
+      antibiotics." Who is reasoning better — the doctor or the administrator?
+  assert:
+    # Must mention base rates / prior probability
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('base rate') || output.toLowerCase().includes('prior') || output.toLowerCase().includes('prevalence')
+    # Must side with the doctor, not the administrator
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('doctor') && (output.toLowerCase().includes('correct') || output.toLowerCase().includes('right') || output.toLowerCase().includes('appropriate') || output.toLowerCase().includes('justified'))
+    # Must mention asymmetric costs / lethality / expected value
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('fatal') || output.toLowerCase().includes('lethal') || output.toLowerCase().includes('death') || output.toLowerCase().includes('asymmetr') || output.toLowerCase().includes('expected value') || output.toLowerCase().includes('cost of being wrong')
+    # Must NOT simply say the administrator is right (the naive base-rate answer)
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('administrator') && (output.toLowerCase().includes('wrong') || output.toLowerCase().includes('error') || output.toLowerCase().includes('flawed') || output.toLowerCase().includes('missing') || output.toLowerCase().includes('ignor'))
+
+# --- 2. Simpson's paradox with a WRONG intuitive resolution ---
+# The trap: "always use disaggregated data." But here the aggregated data
+# is actually more useful for the specific decision being made.
+- vars:
+    prompt: >
+      A pharmaceutical company tests a new drug. Among mild cases, the drug
+      has a 50% recovery rate vs placebo's 55%. Among severe cases, the drug
+      has a 30% recovery rate vs placebo's 35%. So the drug is worse in BOTH
+      subgroups. But overall, 45% of drug patients recover vs 40% of placebo
+      patients. The drug group had far more severe cases (80% severe vs 30%
+      severe in placebo). A statistician says: "The drug is clearly worse —
+      it loses in every subgroup." A clinician says: "But the overall numbers
+      show it works." The FDA must decide: should they approve the drug?
+      Which analysis is correct?
+  assert:
+    # Must identify Simpson's paradox
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('simpson') || (output.toLowerCase().includes('paradox') && output.toLowerCase().includes('aggregat'))
+    # Must say the STATISTICIAN is correct (subgroup analysis wins here)
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('statistician') && (output.toLowerCase().includes('correct') || output.toLowerCase().includes('right') || output.toLowerCase().includes('better'))
+    # Must explain that the confound (severity allocation) makes overall rate misleading
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('confound') || output.toLowerCase().includes('severity') || output.toLowerCase().includes('allocation') || output.toLowerCase().includes('not random')
+    # Must say the drug should NOT be approved or is worse
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('not approv') || output.toLowerCase().includes('should not') || output.toLowerCase().includes('worse in both') || output.toLowerCase().includes('reject')
+
+# --- 3. Conjunction fallacy with added complexity ---
+# Models usually get Linda right. This version adds distractors.
+- vars:
+    prompt: >
+      Ahmed is a 45-year-old software engineer who volunteers at his mosque,
+      coaches his daughter's robotics team, and has donated to Palestinian
+      relief organizations. He recently attended a conference on AI ethics.
+      Rank these from MOST to LEAST probable:
+      (A) Ahmed will change jobs in the next year
+      (B) Ahmed will change jobs to work on AI safety in the next year
+      (C) Ahmed will change jobs to work on AI safety at a nonprofit in the next year
+      (D) Ahmed will change jobs to work on AI safety at a nonprofit focused on
+      Middle Eastern communities in the next year
+      Explain your ranking and reasoning carefully.
+  assert:
+    # Must get the order right: A > B > C > D
+    - type: javascript
+      value: >
+        (output.includes('A') && output.includes('B') && output.includes('C') && output.includes('D')) && (output.match(/A\s*>\s*B|A.*more.*than.*B|A.*most/i) !== null || output.toLowerCase().includes('a is the most') || output.toLowerCase().includes('a > b > c > d'))
+    # Must mention conjunction fallacy or subset probability
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('conjunction') || output.toLowerCase().includes('subset') || output.toLowerCase().includes('p(a and b)') || output.toLowerCase().includes('each additional')
+    # Must explicitly resist the narrative pull of the description
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('narrative') || output.toLowerCase().includes('representativeness') || output.toLowerCase().includes('description') || output.toLowerCase().includes('tempt')
+
+# --- 4. Prosecutor's fallacy with actual numbers to compute ---
+# Not just "name the fallacy" but work through the math correctly.
+- vars:
+    prompt: >
+      In a city of 5 million people, a crime is committed. DNA evidence is found.
+      A forensic lab reports: "The probability of a random innocent person matching
+      this DNA profile is 1 in 1 million." Police run the DNA through a database
+      of 100,000 people and get exactly one match: John. The prosecutor argues:
+      "There's only a 1 in 1 million chance John is innocent." John's defense
+      attorney argues: "John is probably innocent." Calculate the actual
+      probability that John is guilty, showing your work. Who is right?
+  assert:
+    # Must compute expected false matches: ~0.1 from database of 100K
+    - type: javascript
+      value: >
+        output.match(/0\.1|1\s*in\s*10\b|one.tenth|10%/) !== null || output.toLowerCase().includes('expected match') || output.toLowerCase().includes('false match')
+    # Must mention prosecutor's fallacy or transposed conditional
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('prosecutor') || output.toLowerCase().includes('transpos') || output.toLowerCase().includes('inverse') || output.toLowerCase().includes('conditional probability')
+    # Must conclude probability is NOT 1 in a million
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('not 1 in') || output.toLowerCase().includes('not one in') || output.toLowerCase().includes('far higher') || output.toLowerCase().includes('much higher') || output.toLowerCase().includes('overstates')
+    # Must say we need more evidence / neither is fully right, or defense is closer
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('more evidence') || output.toLowerCase().includes('additional') || output.toLowerCase().includes('not sufficient') || output.toLowerCase().includes('defense') || output.toLowerCase().includes('cannot convict')
+
+# --- 5. Survivorship bias where the "debunking" is also wrong ---
+# Trap: just saying "survivorship bias" and dismissing the study.
+# Correct: identifying the bias AND noting it could still be partially true.
+- vars:
+    prompt: >
+      A viral LinkedIn post claims: "I studied 200 billionaires and found they
+      all share 3 traits: extreme risk tolerance, obsessive focus on one domain,
+      and willingness to ignore expert advice. Want to be a billionaire? Develop
+      these traits." A skeptic replies: "This is just survivorship bias. For every
+      billionaire with these traits, there are thousands of failed entrepreneurs
+      with the same traits." A third person says: "Actually, you're both wrong."
+      Who, if anyone, is reasoning correctly?
+  assert:
+    # Must identify survivorship bias
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('survivorship') || output.toLowerCase().includes('survivor bias')
+    # Must say the skeptic is MOSTLY right but incomplete
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('skeptic') && (output.toLowerCase().includes('right') || output.toLowerCase().includes('correct') || output.toLowerCase().includes('valid'))
+    # Must note that traits could be necessary-but-not-sufficient
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('necessary') || output.toLowerCase().includes('sufficient') || output.toLowerCase().includes('necessary but not sufficient')
+    # Must warn about the risk of these traits (ignoring experts, extreme risk)
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('risk') || output.toLowerCase().includes('ruin') || output.toLowerCase().includes('bankrupt') || output.toLowerCase().includes('fail') || output.toLowerCase().includes('dangerous')
+
+# --- 6. Publication bias with the trap of "just do more studies" ---
+- vars:
+    prompt: >
+      47 clinical trials test a new antidepressant. 5 show statistically
+      significant improvement (p<0.05). 42 show no significant difference
+      from placebo. Only the 5 positive trials are published. A systematic
+      review of these 5 published trials concludes "strong and consistent
+      evidence of efficacy." A journal editor suggests: "We need a large,
+      well-designed replication study to settle this." Is the editor's
+      suggestion the right next step? What should actually be done?
+  assert:
+    # Must identify publication bias / file drawer problem
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('publication bias') || output.toLowerCase().includes('file drawer') || output.toLowerCase().includes('selective report')
+    # Must note that 5/47 is close to what you'd expect by chance at p<0.05
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('chance') || output.toLowerCase().includes('expected') || output.toLowerCase().includes('2.35') || output.toLowerCase().includes('type i') || output.toLowerCase().includes('false positive') || output.toLowerCase().includes('5%')
+    # Must say another study is NOT the right answer — need the unpublished data
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('unpublished') || output.toLowerCase().includes('42') || output.toLowerCase().includes('all trials') || output.toLowerCase().includes('all 47') || output.toLowerCase().includes('negative results')
+    # Must mention pre-registration or meta-analysis of ALL trials
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('pre-regist') || output.toLowerCase().includes('registered') || output.toLowerCase().includes('meta-analysis') || output.toLowerCase().includes('all trial') || output.toLowerCase().includes('full data')
+
+# --- 7. Goodhart's law where the metric DOES improve real outcomes ---
+# Trap: reflexively saying "Goodhart's law" and dismissing the improvement.
+# Correct: recognizing BOTH genuine improvement AND gaming coexist.
+- vars:
+    prompt: >
+      A hospital publishes surgeon-specific mortality rates. Over 5 years:
+      mortality drops from 4.2% to 2.8%. The proportion of high-risk surgeries
+      drops from 25% to 18%. Patient satisfaction scores increase. Wait times
+      for complex procedures increase by 40%. Surgeon recruitment becomes harder.
+      An investigative journalist writes: "Gaming the metrics: how transparency
+      backfired." The hospital CEO responds: "Mortality genuinely decreased.
+      Lives were saved." Who is right?
+  assert:
+    # Must mention Goodhart's law or gaming or Campbell's law
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('goodhart') || output.toLowerCase().includes('campbell') || output.toLowerCase().includes('gaming') || (output.toLowerCase().includes('measure') && output.toLowerCase().includes('target'))
+    # Must say BOTH are partially right (not just one side)
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('both') || (output.toLowerCase().includes('journalist') && output.toLowerCase().includes('ceo')) || output.toLowerCase().includes('partially')
+    # Must mention patient selection / cherry-picking / risk avoidance
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('select') || output.toLowerCase().includes('cherry') || output.toLowerCase().includes('risk avoid') || output.toLowerCase().includes('cream skim') || output.toLowerCase().includes('refus')
+    # Must mention the HARM to complex-case patients (wait times, access)
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('wait') || output.toLowerCase().includes('access') || output.toLowerCase().includes('complex') || output.toLowerCase().includes('high-risk patients')
+
+# --- 8. Statistical significance vs practical significance ---
+# The trap: seeing p=0.001 and d=0.03 and just saying "small effect size."
+# The correct answer must also address WHAT to do about it.
+- vars:
+    prompt: >
+      A study of 50,000 students finds that handwriting notes leads to exam
+      scores 0.4 points higher (on a 100-point scale) than typing notes
+      (p<0.001, Cohen's d=0.02). The education minister proposes banning
+      laptops in all classrooms based on this study. A teacher says "the
+      p-value is highly significant so the effect is real." A statistician
+      says "the effect size is negligible so ignore it." A parent says
+      "any improvement matters for my child." Who is reasoning correctly?
+  assert:
+    # Must distinguish statistical from practical significance
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('practical significance') || output.toLowerCase().includes('effect size') || (output.toLowerCase().includes('statistical') && output.toLowerCase().includes('practical'))
+    # Must say the STATISTICIAN is closest to correct
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('statistician') && (output.toLowerCase().includes('correct') || output.toLowerCase().includes('right') || output.toLowerCase().includes('closest') || output.toLowerCase().includes('best'))
+    # Must note the effect is trivially small (0.4 points, d=0.02)
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('trivial') || output.toLowerCase().includes('negligible') || output.toLowerCase().includes('tiny') || output.toLowerCase().includes('0.4 point') || output.toLowerCase().includes('0.02')
+    # Must argue AGAINST the policy ban
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('ban') && (output.toLowerCase().includes('not justified') || output.toLowerCase().includes('not warrant') || output.toLowerCase().includes('disproportionate') || output.toLowerCase().includes('overreact') || output.toLowerCase().includes('should not'))
+
+# --- 9. Regression to the mean with confounded intervention ---
+# Trap: just saying "regression to the mean" and dismissing everything.
+# Correct: acknowledging RTM AND that the intervention might have some effect.
+- vars:
+    prompt: >
+      A company's 20 worst-performing sales reps attend an intensive 2-week
+      training program. The next quarter, their average sales increase by 25%.
+      The company also hired a new VP of Sales during this period, restructured
+      territories, and launched a new product. The training company claims:
+      "Our program boosted sales 25%." The VP of Sales claims: "My leadership
+      turned things around." An analyst says: "This is just regression to the
+      mean — do nothing." If you had to advise the CEO, what would you say?
+  assert:
+    # Must mention regression to the mean
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('regression to the mean') || output.toLowerCase().includes('regression toward') || output.toLowerCase().includes('revert to')
+    # Must mention the confounds (VP, territories, new product)
+    - type: javascript
+      value: >
+        (output.toLowerCase().includes('vp') || output.toLowerCase().includes('leadership')) && (output.toLowerCase().includes('territor') || output.toLowerCase().includes('product') || output.toLowerCase().includes('confound'))
+    # Must say NONE of the three claims can be validated
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('cannot attribute') || output.toLowerCase().includes('cannot isolate') || output.toLowerCase().includes('impossible to determine') || output.toLowerCase().includes('none of') || output.toLowerCase().includes('no way to know') || output.toLowerCase().includes('cannot disentangle')
+    # Must recommend a controlled test or comparison group
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('control') || output.toLowerCase().includes('comparison') || output.toLowerCase().includes('a/b') || output.toLowerCase().includes('randomiz') || output.toLowerCase().includes('experiment')
+
+# --- 10. Epistemic learned helplessness (everything is uncertain) ---
+# Trap: being so uncertain about everything that you refuse to reason.
+# Correct: acknowledging uncertainty while still making actionable claims.
+- vars:
+    prompt: >
+      A city council debates fluoridating the water supply. Proponents cite
+      hundreds of studies showing it reduces cavities by 25%. Opponents cite
+      a few studies suggesting possible links to lower IQ at high doses.
+      A council member says: "Both sides have studies. Science is always
+      uncertain. We can't really know anything for sure, so let's just not
+      change anything." Another says: "The evidence overwhelmingly supports
+      fluoridation." A third says: "We should wait for perfect evidence
+      before acting." Evaluate each position.
+  assert:
+    # Must say the evidence favors fluoridation (not false balance)
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('evidence') && (output.toLowerCase().includes('supports') || output.toLowerCase().includes('favors') || output.toLowerCase().includes('overwhelm'))
+    # Must criticize the "we can't know anything" position
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('false balance') || output.toLowerCase().includes('false equivalen') || output.toLowerCase().includes('not all evidence is equal') || output.toLowerCase().includes('weight of evidence') || output.toLowerCase().includes('epistemic nihil')
+    # Must criticize "wait for perfect evidence" as unrealistic
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('perfect') && (output.toLowerCase().includes('never') || output.toLowerCase().includes('impossible') || output.toLowerCase().includes('unrealistic') || output.toLowerCase().includes('paralysis'))
+    # Must still acknowledge dose-dependent concerns are legitimate
+    - type: javascript
+      value: >
+        output.toLowerCase().includes('dose') || output.toLowerCase().includes('concentration') || output.toLowerCase().includes('high doses') || output.toLowerCase().includes('level') || output.toLowerCase().includes('monitor')

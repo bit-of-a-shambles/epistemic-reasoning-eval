@@ -5,3 +5,4 @@ node_modules/
 .promptfoo/
 output/
 *.db
+results*.json
