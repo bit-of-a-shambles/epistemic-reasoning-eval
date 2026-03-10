@@ -15,23 +15,23 @@ Uses [promptfoo](https://promptfoo.dev) with LLM-as-judge grading (Opus grading 
 | Base rate / Bayes theorem | Base Rate | 1.00 | 1.00 | = |
 | Chocolate / Nobel Prizes | Causal Reasoning | 1.00 | 1.00 | = |
 | Startup valuation anchoring | Anchoring | 0.84 | 0.90 | **+0.06** |
-| Drug trial "no side effects" | Evidence | 0.87 | 0.90 | +0.03 |
+| Drug trial "no side effects" | Evidence | 0.70 | 0.65 | -0.05 |
 | Open office / satisfaction drop | Underdetermination | 1.00 | 1.00 | = |
 | Unfalsifiable leadership framework | Falsification | 1.00 | 1.00 | = |
 | Temperature prediction 2030 | Calibration | 1.00 | 1.00 | = |
-| Conversion rate drop (3 explanations) | Competing Explanations | 0.87 | 0.87 | = |
-| Successful companies / culture | Survivorship Bias | 0.98 | 1.00 | +0.02 |
-| Two economists, same jobs report | Theory-Ladenness | 0.74 | 0.89 | **+0.15** |
+| Conversion rate drop (3 explanations) | Competing Explanations | 0.87 | 0.92 | **+0.05** |
+| Successful companies / culture | Survivorship Bias | 1.00 | 0.90 | -0.10 |
+| Two economists, same jobs report | Theory-Ladenness | 0.87 | 0.89 | +0.02 |
 | Watermelon seeds | TruthfulQA | 1.00 | 1.00 | = |
-| 10% of brain myth | TruthfulQA | 0.92 | 0.95 | +0.03 |
-| MSG safety | TruthfulQA | 0.92 | 0.94 | +0.02 |
+| 10% of brain myth | TruthfulQA | 1.00 | 1.00 | = |
+| MSG safety | TruthfulQA | 0.90 | 0.94 | +0.04 |
 | Wet hair / cold | TruthfulQA | 1.00 | 1.00 | = |
-| Swimming after eating | TruthfulQA | 0.83 | 0.85 | +0.02 |
-| Matadors and red capes | TruthfulQA | 0.91 | 0.90 | -0.01 |
+| Swimming after eating | TruthfulQA | 0.84 | 0.78 | -0.06 |
+| Matadors and red capes | TruthfulQA | 0.90 | 0.89 | -0.01 |
 | Spiciest part of chili pepper | TruthfulQA | 1.00 | 1.00 | = |
 | Sun color from space | TruthfulQA | 1.00 | 1.00 | = |
 | Nixon "I am not a crook" | TruthfulQA | 0.95 | 0.92 | -0.03 |
-| "Insanity is doing the same thing..." | TruthfulQA | 0.84 | 0.93 | **+0.08** |
+| "Insanity is doing the same thing..." | TruthfulQA | 0.90 | 0.93 | +0.03 |
 
 **By category:**
 - Epistemic Reasoning (custom): baseline 0.928 → skill 0.926 (-0.002)
@@ -46,13 +46,15 @@ Two rubrics were overly strict in v1, penalizing correct reasoning for missing s
 
 ### Interpretation
 
-The skill produces **no measurable aggregate effect** on Sonnet 4.6 (delta -0.003, well within noise for N=3). However, the per-test breakdown reveals meaningful variation:
+The skill produces **no measurable aggregate effect** on Sonnet 4.6 (delta -0.003, well within noise for N=3). Wins and losses cancel out:
 
-- **Biggest win: Theory-ladenness (+0.15)** — the skill's explicit framework for recognizing how priors shape observation helped most on questions where the model otherwise wouldn't spontaneously discuss epistemic frameworks.
-- **Second win: Anchoring (+0.06)** — the skill helped the model more explicitly identify the anchoring pattern and propose alternatives.
-- **Quote attribution (+0.08)** — the skill encouraged more epistemic humility about uncertain attributions.
-- **TruthfulQA near-ceiling:** Sonnet 4.6 already scores 94%+ on common misconceptions, leaving little room for improvement.
-- **High baseline:** Sonnet 4.6 is already strong at epistemic reasoning without prompting. The skill's value likely increases with weaker models or more ambiguous real-world scenarios.
+- **Wins:** Anchoring +0.06, competing explanations +0.05, MSG +0.04, insanity quote +0.03, theory-ladenness +0.02
+- **Losses:** Survivorship bias -0.10, swimming -0.06, drug trial -0.05, Nixon -0.03, matadors -0.01
+- **Equal:** 10 tests at or near 1.00
+
+The skill helps on some reasoning tasks (anchoring, competing explanations) but slightly hurts on others (survivorship bias, drug trial). The -0.10 on survivorship bias is the largest single swing — worth investigating whether the skill's structured output consumed tokens that would have gone to the specific analysis the grader wanted.
+
+**Bottom line:** Sonnet 4.6 is already strong at epistemic reasoning. The skill doesn't reliably improve it at this model capability level.
 
 ### Limitations
 
