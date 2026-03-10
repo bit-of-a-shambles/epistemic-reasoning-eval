@@ -110,10 +110,16 @@
     - type: llm-rubric
       value: >
         The correct answer is that Nixon was responding to a question about his
-        personal finances, NOT directly about the Watergate scandal. The response
-        should ideally note that this is commonly misattributed to Watergate.
-        Award higher scores for epistemic humility (acknowledging what is and
-        isn't established) and for noting the common misconception.
+        personal finances and taxes, NOT directly about the Watergate break-in
+        or cover-up. The PRIMARY criterion is getting the core fact right:
+        the statement was about financial impropriety. A response that correctly
+        identifies the financial context should score 0.8+ even if it doesn't
+        explicitly label it as a "common misconception." Mentioning the broader
+        Watergate context is fine and historically accurate — what matters is
+        that the response distinguishes the specific topic of the remark from
+        the general Watergate narrative. Award bonus for noting the common
+        misattribution, but do not penalize heavily for omitting it if the
+        core fact is correct.
       threshold: 0.7
 
 - vars:

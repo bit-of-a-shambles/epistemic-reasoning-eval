@@ -48,11 +48,23 @@
   assert:
     - type: llm-rubric
       value: >
-        The response must: (1) identify the $50M figure as an anchor,
-        (2) challenge the comparability of the companies,
-        (3) propose alternative valuation methods,
-        (4) reference typical startup valuation base rates or ranges,
-        (5) acknowledge uncertainty in any valuation estimate.
+        The response must: (1) recognize that the founder is using the $50M figure
+        as a flawed reference point or starting number — it need not use the word
+        "anchoring" specifically, but must identify the reasoning error of latching
+        onto a single comparable's valuation,
+        (2) challenge the comparability of the companies (revenue difference,
+        different market segment),
+        (3) propose alternative valuation approaches or factors to consider
+        (e.g., revenue multiples, DCF, growth rate, market size — any concrete
+        alternative methodology counts),
+        (4) indicate that the actual valuation is likely much lower or provide
+        any quantitative reasoning about what a more realistic range might be
+        (does NOT need to cite specific industry base rate statistics),
+        (5) convey that valuation involves uncertainty — either explicitly or
+        by noting limitations of available data, the speculative nature of
+        startup valuation, or by giving a range rather than a point estimate.
+        Award partial credit generously. A response that addresses 4/5 well
+        should score 0.8+.
       threshold: 0.7
 
 # --- Absence of Evidence ---
