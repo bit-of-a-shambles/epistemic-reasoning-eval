@@ -1,0 +1,165 @@
+---
+name: epistemic-reasoning
+description: Use when reasoning about any question, forming conclusions, evaluating evidence, diagnosing problems, making predictions, or choosing between competing explanations
+---
+
+# Epistemic Reasoning
+
+## Iron Law
+
+```
+NO CONCLUSIONS WITHOUT CONSIDERING WHAT WOULD PROVE YOU WRONG
+```
+
+Every conclusion you reach must pass this test. If you cannot articulate what would falsify your claim, you do not understand it well enough to assert it.
+
+## When to Use
+
+- Answering questions that involve judgment, not just lookup
+- Choosing between competing explanations
+- Diagnosing problems (technical or otherwise)
+- Making predictions or recommendations
+- Evaluating claims, evidence, or arguments
+- Any situation where you catch yourself feeling "certain"
+
+## Tier Selection
+
+```
+Is this a simple factual lookup with a known answer?
+  → No skill needed (but state confidence)
+
+Does it involve choosing between explanations, making a prediction, or diagnosing a problem?
+  → Tier 2: Structured Analysis
+
+Is it complex, high-stakes, multi-causal, or politically/scientifically contested?
+  → Tier 3: Full Epistemic Audit
+
+Everything else with any uncertainty:
+  → Tier 1: Epistemic Hygiene Check
+```
+
+---
+
+## Tier 1 — Epistemic Hygiene Check
+
+For simple questions where some uncertainty exists.
+
+1. **State confidence level and basis** — "I'm ~80% confident because [source/reasoning]"
+2. **Flag ignored base rates** — Is there a statistical prior you're overlooking?
+3. **Note assumptions** — What are you taking for granted?
+4. **Parsimony check** — Is there a simpler explanation you haven't considered?
+
+Output format: Weave these naturally into your response. No need for headers or formal structure.
+
+---
+
+## Tier 2 — Structured Analysis
+
+For choosing between explanations, making predictions, or diagnosing problems.
+
+### Steps
+
+1. **Prior**: What did we believe before this specific evidence? What are the base rates? What's the default expectation?
+
+2. **Evidence**: What evidence is available? Rate its quality (direct observation > reliable report > anecdote > speculation). What evidence would we *expect to see* if our hypothesis were wrong?
+
+3. **Posterior**: Given the evidence, how should we update our prior belief? Be explicit about the direction and magnitude of the update.
+
+4. **Falsification check**: What specific observations would disprove this conclusion? Have we actually looked for them, or just confirmed what we expected?
+
+5. **Conclusion**: State the conclusion with calibrated confidence. Use ranges when appropriate. Name remaining uncertainties.
+
+### Output format
+
+Use the five headers above. Keep each section concise — a few sentences, not paragraphs.
+
+---
+
+## Tier 3 — Full Epistemic Audit
+
+For complex, high-stakes, or multi-factor reasoning. Includes everything from Tier 2, plus:
+
+### Additional Steps (after Tier 2)
+
+6. **Alternative theories** — What other explanations fit this same data equally well? (Duhem-Quine underdetermination: data rarely rules out all but one theory.)
+
+7. **Causal mechanism** — What is the proposed causal pathway? Correlation without mechanism is not explanation. State the chain explicitly.
+
+8. **Assumption audit** — What assumptions shape your observations? Could different theoretical commitments lead you to see the same data differently? (Theory-ladenness.)
+
+9. **Research programme assessment** — Is this explanation generating new, testable predictions (progressive)? Or is it surviving only by adding patches and exceptions (degenerative)? (Lakatos.)
+
+10. **Inference to best explanation ranking** — Rank competing hypotheses on:
+    - **Scope**: How much does it explain?
+    - **Precision**: How specific are its predictions?
+    - **Mechanism**: Does it explain *why*, not just *that*?
+    - **Simplicity**: How many independent assumptions does it require?
+    - **Fertility**: Does it suggest new lines of inquiry?
+
+---
+
+## The Epistemics Toolkit — Quick Reference
+
+| Concept | Core Question | Source |
+|---------|--------------|--------|
+| Falsification | What would prove this wrong? | Popper |
+| Bayesian updating | How should this evidence change my belief? | Bayes/Jaynes |
+| Parsimony | Is a simpler explanation available? | Occam |
+| Inference to Best Explanation | Which hypothesis has the most explanatory virtues? | Lipton |
+| Underdetermination | What other theories fit this same data? | Duhem-Quine |
+| Base rate attention | What's the prior probability before case-specific evidence? | Kahneman/Tversky |
+| Mechanism | What's the causal pathway, not just correlation? | Salmon/Machamer |
+| Epistemic humility | What don't I know? How could I be wrong? | — |
+| Theory-ladenness | What assumptions shape my observations? | Hanson/Kuhn |
+| Progressive vs degenerative | Is this theory generating new predictions or just patching holes? | Lakatos |
+
+---
+
+## Red Flags — Reasoning Failures to Guard Against
+
+- Reaching a conclusion without considering alternatives (confirmation bias)
+- Ignoring base rates in favor of vivid details (base rate neglect)
+- Treating absence of evidence as evidence of absence
+- Not updating beliefs when new evidence arrives (anchoring)
+- Preferring complex explanations when simpler ones suffice
+- Confusing correlation with causation without a mechanism
+- Treating unfalsifiable claims as informative
+- Adding ad hoc patches to save a failing theory (degenerative programme)
+- Expressing uncalibrated high confidence ("obviously", "certainly", "clearly")
+
+---
+
+## Rationalization Table
+
+| Excuse | Reality |
+|--------|---------|
+| "This is obvious" | Obvious conclusions are where hidden assumptions do the most damage |
+| "I already considered alternatives" | Name them. If you cannot, you have not |
+| "The evidence clearly shows X" | State the prior, state the update |
+| "Just a simple factual question" | Facts have confidence levels and sources |
+| "Falsification is for science" | Reasoning without falsification is wishful thinking |
+| "Only one reasonable explanation" | There are almost always multiple theories that fit |
+| "The mechanism is obvious" | State it explicitly |
+
+---
+
+## Worked Example — Tier 2
+
+**Scenario**: "A startup's revenue dropped 30% last month. The CEO says it's because a competitor launched a new product."
+
+**Prior**: Revenue drops have many causes. Competitor launches explain a minority of revenue drops historically. Common causes: seasonality, churn spikes, pricing changes, sales team turnover, product issues, market shifts.
+
+**Evidence**: Revenue dropped 30% (confirmed). Competitor launched a product (confirmed). Missing: timing correlation, customer exit surveys, where lost customers went, whether other metrics changed, seasonal patterns from prior years.
+
+**Posterior**: Without evidence that lost customers migrated to the competitor, attribution is premature. Modest update toward the competitor explanation, but alternatives remain equally plausible. Current estimate: competitor is ~20-30% likely to be the primary cause.
+
+**Falsification check**: If the competitor explanation is correct, we'd expect: (1) lost customers appearing in competitor's user base, (2) drop concentrated in segments where products overlap, (3) no comparable seasonal pattern in prior years, (4) timing alignment between competitor launch and revenue decline.
+
+**Conclusion**: Moderate confidence that the competitor is *at most* a contributing factor. The CEO's monocausal attribution likely reflects availability bias — the competitor launch is salient and recent, making it cognitively easy to blame. Recommendation: gather customer-level churn data before making strategic decisions based on this attribution.
+
+---
+
+## Cross-References
+
+- **superpowers:systematic-debugging** — complementary for technical reasoning; debugging is applied epistemics
+- **superpowers:verification-before-completion** — shares the "evidence before claims" principle
