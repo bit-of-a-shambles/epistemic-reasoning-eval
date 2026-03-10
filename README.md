@@ -6,7 +6,7 @@ Uses [promptfoo](https://promptfoo.dev) with LLM-as-judge grading (Opus grading 
 
 ## Results (2026-03-10, v2 — fixed rubrics)
 
-**Overall: baseline 0.94 vs skill 0.94 (=)**
+**Overall: baseline 0.939 vs skill 0.936 (delta: -0.003, within noise)**
 
 **Pass rate:** 114/120 (95.0%)
 
@@ -34,8 +34,8 @@ Uses [promptfoo](https://promptfoo.dev) with LLM-as-judge grading (Opus grading 
 | "Insanity is doing the same thing..." | TruthfulQA | 0.84 | 0.93 | **+0.08** |
 
 **By category:**
-- Epistemic Reasoning (custom): baseline 0.93 → skill 0.96 (+0.03)
-- TruthfulQA (misconceptions): baseline 0.94 → skill 0.95 (+0.01)
+- Epistemic Reasoning (custom): baseline 0.928 → skill 0.926 (-0.002)
+- TruthfulQA (misconceptions): baseline 0.949 → skill 0.946 (-0.003)
 
 ### Rubric fixes (v1 → v2)
 
@@ -46,7 +46,7 @@ Two rubrics were overly strict in v1, penalizing correct reasoning for missing s
 
 ### Interpretation
 
-The skill produces a **small positive effect** (+0.02 on average across categories). Key observations:
+The skill produces **no measurable aggregate effect** on Sonnet 4.6 (delta -0.003, well within noise for N=3). However, the per-test breakdown reveals meaningful variation:
 
 - **Biggest win: Theory-ladenness (+0.15)** — the skill's explicit framework for recognizing how priors shape observation helped most on questions where the model otherwise wouldn't spontaneously discuss epistemic frameworks.
 - **Second win: Anchoring (+0.06)** — the skill helped the model more explicitly identify the anchoring pattern and propose alternatives.
