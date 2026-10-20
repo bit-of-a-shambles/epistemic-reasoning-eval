@@ -1,0 +1,7 @@
+{
+  "provider": "openai",
+  "model": "REPLACE_WITH_PINNED_MODEL_ID",
+  "track": "default",
+  "maxOutputTokens": 2048,
+  "timeoutMs": 120000
+}

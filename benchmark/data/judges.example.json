@@ -1,0 +1,14 @@
+[
+  {
+    "provider": "openai",
+    "model": "REPLACE_WITH_FIRST_JUDGE_MODEL_ID",
+    "track": "default",
+    "maxOutputTokens": 1024
+  },
+  {
+    "provider": "anthropic",
+    "model": "REPLACE_WITH_SECOND_JUDGE_MODEL_ID",
+    "track": "default",
+    "maxOutputTokens": 1024
+  }
+]

@@ -1,13 +1,20 @@
 {
   "name": "epistemic-reasoning-eval",
   "version": "1.0.0",
-  "description": "A/B evaluation comparing Claude's reasoning quality with and without an epistemic reasoning skill injected as a system prompt.",
-  "main": "index.js",
+  "description": "Critical thinking benchmark with controlled evidence, executable scoring, and audited model comparisons.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "directories": {
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test benchmark/test/*.test.js",
+    "bench": "node benchmark/cli.js",
+    "bench:validate": "node benchmark/cli.js validate",
+    "bench:smoke": "node benchmark/cli.js run --tier development --offline oracle --out output/smoke",
+    "legacy": "promptfoo eval"
   },
   "keywords": [],
   "author": "",
